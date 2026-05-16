@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Корзина - Solovey Desert{% endblock %}
+
+{% block extra_head %}
+  <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block content %}
+<section class="cart-page" x-data>
+  <nav class="breadcrumbs">
+    <a href="{% url 'pages:home' %}">Главная</a>
+    <span>→</span>
+    <span>Корзина</span>
+  </nav>
+
+  <div class="page-title">
+    <div>
+      <div class="eyebrow">КОРЗИНА</div>
+      <h1>Ваш заказ</h1>
+    </div>
+    <p>Проверьте состав заказа и оставьте контакты для согласования деталей.</p>
+  </div>
+
+  <div class="cart-layout">
+    <div class="cart-items" data-cart-items></div>
+
+    <aside class="cart-summary">
+      <h2>Итого</h2>
+      <div class="summary-row">
+        <span>Товары</span>
+        <strong data-cart-total>0 BYN</strong>
+      </div>
+      <label>
+        Имя
+        <input type="text" data-order-name>
+      </label>
+      <label>
+        Дата события
+        <input type="date" data-order-date>
+      </label>
+      <label>
+        Телефон для связи
+        <input type="tel" placeholder="+375 (__) ___-__-__" data-order-phone>
+      </label>
+      <label>
+        Комментарий к заказу
+        <textarea placeholder="Вес, оформление, пожелания, адрес доставки" data-order-comment></textarea>
+      </label>
+      <button class="checkout-btn" type="button" data-checkout>Оформить заявку</button>
+      <p data-checkout-message>После оформления мы свяжемся с вами для уточнения деталей.</p>
+    </aside>
+  </div>
+</section>
+{% endblock %}

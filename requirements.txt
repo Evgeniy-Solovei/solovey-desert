@@ -1,0 +1,16 @@
+asgiref==3.11.1
+click==8.3.3
+Django==5.2.14
+django-environ==0.13.0
+django-filter==25.2
+django-unfold==0.93.0
+djangorestframework==3.17.1
+gunicorn==26.0.0
+h11==0.16.0
+packaging==26.2
+pillow==12.2.0
+psycopg==3.2.13
+psycopg-binary==3.2.13
+sqlparse==0.5.5
+uvicorn==0.46.0
+whitenoise==6.12.0

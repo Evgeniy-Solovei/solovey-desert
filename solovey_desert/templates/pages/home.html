@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Solovey Desert - авторские торты и десерты{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero__content">
+    {% for slide in hero_slides %}
+      <div class="hero-copy{% if forloop.first %} is-active{% endif %}" data-hero-copy>
+        <div class="eyebrow">{{ slide.eyebrow|default:'БУТИК ДЕСЕРТОВ' }}</div>
+        <h1>{{ slide.title|default:'Авторские торты и десерты в нежной эстетике' }}</h1>
+        <p>{{ slide.subtitle|default:'Нежные торты, десерты, конфеты и подарочные наборы ручной работы для семейных праздников, свадеб и особенных событий.' }}</p>
+        <div class="hero__actions">
+          {% if slide.primary_button_text %}
+            <a class="btn btn--dark" href="{{ slide.primary_button_url|default:'#catalog' }}">{{ slide.primary_button_text }}</a>
+          {% endif %}
+          {% if slide.secondary_button_text %}
+            <a class="btn btn--soft" href="{{ slide.secondary_button_url|default:'#order' }}">{{ slide.secondary_button_text }}</a>
+          {% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <div class="hero-copy is-active" data-hero-copy>
+        <div class="eyebrow">БУТИК ДЕСЕРТОВ</div>
+        <h1>Авторские торты и десерты в нежной эстетике</h1>
+        <p>Нежные торты, десерты, конфеты и подарочные наборы ручной работы для семейных праздников, свадеб и особенных событий.</p>
+        <div class="hero__actions">
+          <a class="btn btn--dark" href="#catalog">Смотреть каталог</a>
+          <a class="btn btn--soft" href="#order">Оставить заявку</a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="hero__media hero-slider" aria-label="Слайдер главных фото">
+    {% for slide in hero_slides %}
+      <img class="hero-slide{% if forloop.first %} is-active{% endif %}" src="{{ slide.image.url }}" alt="{{ slide.title }}">
+    {% empty %}
+      <img class="hero-slide is-active" src="{% static 'assets/hero-slide-1.jpg' %}" alt="Фото торта 1">
+      <img class="hero-slide" src="{% static 'assets/hero-slide-2.jpg' %}" alt="Фото торта 2">
+      <img class="hero-slide" src="{% static 'assets/hero-slide-3.jpg' %}" alt="Фото торта 3">
+    {% endfor %}
+    <div class="hero-slider__dots" aria-hidden="true">
+      {% for slide in hero_slides %}
+        <span{% if forloop.first %} class="is-active"{% endif %}></span>
+      {% empty %}
+        <span class="is-active"></span>
+        <span></span>
+        <span></span>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section" id="catalog">
+  <div class="section__head">
+    <div>
+      <div class="eyebrow">КАТАЛОГ</div>
+      <h2>Что можно заказать</h2>
+    </div>
+    <p>Выберите формат десерта для праздника, подарка или семейного чаепития.</p>
+  </div>
+
+  <div class="carousel-wrap">
+    <button class="carousel-btn carousel-btn--prev" type="button" data-carousel-prev="categories" aria-label="Назад">‹</button>
+    <div class="category-grid carousel" id="categories" data-carousel>
+      {% for category in categories %}
+        <a class="category-card category-card--link" href="{{ category.get_absolute_url }}">
+          {% if category.image %}
+            <img src="{{ category.image.url }}" alt="{{ category.title }}">
+          {% else %}
+            <img src="{% static 'assets/cake.jpg' %}" alt="{{ category.title }}">
+          {% endif %}
+          <div>
+            <h3>{{ category.title }}</h3>
+            <p>{{ category.description|default:'Авторские десерты ручной работы.' }}</p>
+            <span class="category-card__more">Смотреть →</span>
+          </div>
+        </a>
+      {% empty %}
+        <a class="category-card category-card--link" href="#">
+          <img src="{% static 'assets/cake.jpg' %}" alt="Торты">
+          <div><h3>Торты</h3><p>Добавьте категории в админке, и они появятся здесь.</p><span class="category-card__more">Смотреть →</span></div>
+        </a>
+      {% endfor %}
+    </div>
+    <button class="carousel-btn carousel-btn--next" type="button" data-carousel-next="categories" aria-label="Вперед">›</button>
+  </div>
+</section>
+
+<section class="section products">
+  <div class="section__head">
+    <div>
+      <div class="eyebrow">ПОПУЛЯРНОЕ</div>
+      <h2>Популярные товары</h2>
+    </div>
+    <p>Нежные сочетания вкусов, аккуратный декор и свежие десерты под ваш повод.</p>
+  </div>
+
+  <div class="carousel-wrap products-carousel-wrap">
+    <button class="carousel-btn carousel-btn--prev" type="button" data-carousel-prev="products" aria-label="Назад">‹</button>
+    <div class="product-grid carousel" id="products" data-carousel>
+      {% for product in featured_products %}
+        {% include 'catalog/_product_card.html' with product=product %}
+      {% empty %}
+        <article class="product-card">
+          <img src="{% static 'assets/product-cake.jpg' %}" alt="Товар">
+          <div class="product-card__body">
+            <h3>Добавьте товары</h3>
+            <p>Скоро здесь появятся новые позиции.</p>
+            <div class="product-card__footer"><strong>от 0 BYN</strong></div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+    <button class="carousel-btn carousel-btn--next" type="button" data-carousel-next="products" aria-label="Вперед">›</button>
+  </div>
+</section>
+
+<section class="order" id="order">
+  <div class="order__head">
+    <div class="eyebrow">КАК ЗАКАЗАТЬ</div>
+    <h2>4 простых шага</h2>
+  </div>
+  <div class="steps">
+    <div class="step"><span>01</span><h3>Выберите</h3><p>Категорию, товар или пример оформления.</p></div>
+    <div class="step"><span>02</span><h3>Оставьте заявку</h3><p>Укажите дату, вкус, вес и пожелания.</p></div>
+    <div class="step"><span>03</span><h3>Согласуем</h3><p>Подтвердим цену, дизайн и детали.</p></div>
+    <div class="step"><span>04</span><h3>Получите</h3><p>Самовывоз или доставка по договоренности.</p></div>
+  </div>
+</section>
+
+<section class="about" id="about">
+  <img src="{% static 'assets/sets.jpg' %}" alt="Набор десертов">
+  <div>
+    <div class="eyebrow">О БРЕНДЕ</div>
+    <h2>Нежная эстетика, ручная работа и понятный путь к заказу</h2>
+    <p>Этот блок можно наполнить историей бренда, преимуществами, условиями доставки и важной информацией для клиента.</p>
+    <div class="benefits">
+      <span>Натуральные ингредиенты</span>
+      <span>Ручная работа</span>
+      <span>Эстетика в деталях</span>
+      <span>Свежесть</span>
+    </div>
+  </div>
+</section>
+{% endblock %}

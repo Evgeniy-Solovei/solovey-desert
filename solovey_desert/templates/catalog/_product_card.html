@@ -1,0 +1,22 @@
+{% load static %}
+{% with default_option=product.default_weight_option %}
+<article class="product-card product-card--clickable">
+  <a class="product-card__overlay" href="{{ product.get_absolute_url }}" aria-label="Подробнее: {{ product.title }}"></a>
+  {% if product.main_image %}
+    <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
+  {% else %}
+    <img src="{% static 'assets/product-cake.jpg' %}" alt="{{ product.title }}">
+  {% endif %}
+  <div class="product-card__body">
+    <h3>{{ product.title }}</h3>
+    <p>{{ product.short_description|default:'Авторский десерт ручной работы.' }}</p>
+    <div class="product-card__footer">
+      <strong>от {{ product.price_from|floatformat:"0" }} BYN</strong>
+      {% if default_option %}
+        <button class="add-to-cart" type="button" data-product-id="{{ product.id }}" data-weight-option-id="{{ default_option.id }}" aria-label="Добавить в корзину">+</button>
+      {% endif %}
+    </div>
+    <a class="product-card__link" href="{{ product.get_absolute_url }}">Подробнее →</a>
+  </div>
+</article>
+{% endwith %}

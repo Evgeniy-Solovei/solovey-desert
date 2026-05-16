@@ -1,0 +1,80 @@
+services:
+  web:
+    container_name: solovey_desert_web
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: >
+      sh -c "python manage.py migrate
+      && python manage.py collectstatic --noinput
+      && gunicorn solovey_desert.wsgi:application --bind 0.0.0.0:8000"
+    expose:
+      - "8000"
+    env_file:
+      - .env
+    volumes:
+      - ./solovey_desert:/app/solovey_desert
+      - static_volume:/app/solovey_desert/staticfiles
+      - media_volume:/app/solovey_desert/media
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  nginx:
+    container_name: solovey_desert_nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+    env_file:
+      - .env
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_volume:/app/solovey_desert/staticfiles:ro
+      - media_volume:/app/solovey_desert/media:ro
+      - certbot_etc:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    depends_on:
+      - web
+    restart: unless-stopped
+
+  certbot:
+    container_name: solovey_desert_certbot
+    image: certbot/certbot:latest
+    env_file:
+      - .env
+    volumes:
+      - certbot_etc:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    entrypoint: /bin/sh
+    command: >
+      -c "trap exit TERM;
+      while :; do
+        certbot renew --webroot -w /var/www/certbot --quiet;
+        sleep 43200;
+      done"
+    restart: unless-stopped
+
+  db:
+    container_name: solovey_desert_db
+    image: postgres:16-alpine
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+  certbot_etc:
+  certbot_www:

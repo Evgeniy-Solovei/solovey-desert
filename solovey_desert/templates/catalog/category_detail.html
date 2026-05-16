@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ category.title }} - Solovey Desert{% endblock %}
+
+{% block content %}
+<section class="catalog-page">
+  <nav class="breadcrumbs">
+    <a href="{% url 'pages:home' %}">Главная</a>
+    <span>→</span>
+    <a href="{% url 'pages:home' %}#catalog">Каталог</a>
+    <span>→</span>
+    <span>{{ category.title }}</span>
+  </nav>
+
+  <div class="page-title">
+    <div>
+      <div class="eyebrow">КАТЕГОРИЯ</div>
+      <h1>{{ category.title }}</h1>
+    </div>
+    <p>{{ category.description|default:'Выберите десерт и добавьте подходящий вариант в корзину.' }}</p>
+  </div>
+
+  <div class="catalog-products-grid">
+    {% for product in category.products.all %}
+      {% if product.is_active %}
+        {% include 'catalog/_product_card.html' with product=product %}
+      {% endif %}
+    {% empty %}
+      <article class="product-card">
+        <img src="{% static 'assets/product-cake.jpg' %}" alt="Нет товаров">
+        <div class="product-card__body">
+          <h3>Категория пока пустая</h3>
+          <p>Скоро здесь появятся новые десерты.</p>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

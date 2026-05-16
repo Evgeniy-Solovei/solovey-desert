@@ -1,0 +1,22 @@
+{% load static %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Bakery",
+  "name": "{{ site_name|escapejs }}",
+  "description": "{{ site_description|escapejs }}",
+  "url": "{{ site_url }}",
+  "telephone": "{{ site_phone|escapejs }}",
+  "email": "{{ site_email|escapejs }}",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "{{ site_city|escapejs }}",
+    "addressCountry": "BY"
+  },
+  "areaServed": {
+    "@type": "Country",
+    "name": "Belarus"
+  },
+  "image": "{{ site_url }}{% static 'assets/logo-solovey-circle-web.png' %}"
+}
+</script>

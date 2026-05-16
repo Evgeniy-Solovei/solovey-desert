@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.title }} - Solovey Desert{% endblock %}
+
+{% block content %}
+<section class="product-page">
+  <nav class="breadcrumbs">
+    <a href="{% url 'pages:home' %}">Главная</a>
+    <span>→</span>
+    <a href="{% url 'pages:home' %}#catalog">Каталог</a>
+    <span>→</span>
+    <a href="{{ product.category.get_absolute_url }}">{{ product.category.title }}</a>
+    <span>→</span>
+    <span>{{ product.title }}</span>
+  </nav>
+
+  <div class="product-detail">
+    <div class="product-gallery">
+      {% if product.main_image %}
+        <img class="product-main-photo" src="{{ product.main_image.url }}" alt="{{ product.title }}">
+      {% else %}
+        <img class="product-main-photo" src="{% static 'assets/product-cake.jpg' %}" alt="{{ product.title }}">
+      {% endif %}
+      <div class="product-thumbs">
+        {% if product.main_image %}
+          <button class="is-active" type="button"><img src="{{ product.main_image.url }}" alt="{{ product.title }}"></button>
+        {% endif %}
+        {% for image in product.images.all %}
+          <button type="button"><img src="{{ image.image.url }}" alt="{{ image.alt|default:product.title }}"></button>
+        {% empty %}
+          <button class="is-active" type="button"><img src="{% static 'assets/product-cake.jpg' %}" alt="Фото 1"></button>
+          <button type="button"><img src="{% static 'assets/cake.jpg' %}" alt="Фото 2"></button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <article class="product-info">
+      <div class="eyebrow">{{ product.category.title }}</div>
+      <h1>{{ product.title }}</h1>
+      <p class="product-lead">{{ product.description|default:product.short_description }}</p>
+
+      <div class="weight-select">
+        <h3>Выберите вес</h3>
+        <div class="weight-options">
+          {% for option in product.weight_options.all %}
+            <button class="{% if option.is_default or forloop.first %}is-active{% endif %}" type="button" data-weight-option-id="{{ option.id }}" data-price="{{ option.price|floatformat:"0" }}">{{ option.weight|floatformat:"-2" }} кг</button>
+          {% empty %}
+            <button class="is-active" type="button" disabled>Вес не задан</button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="price-box">
+        <div>
+          <small>Стоимость</small>
+          <strong data-price>{{ product.price_from|floatformat:"0" }} BYN</strong>
+        </div>
+        <button class="order-product-btn add-to-cart" type="button" data-product-id="{{ product.id }}" data-weight-option-id="">Добавить в корзину</button>
+      </div>
+
+      {% if product.taste_description %}
+        <div class="product-section">
+          <h3>Описание вкуса</h3>
+          <p>{{ product.taste_description|linebreaksbr }}</p>
+        </div>
+      {% endif %}
+
+      {% if product.composition %}
+        <div class="accordion">
+          <div class="accordion-item">
+            <button class="accordion-button" type="button">Состав <span>+</span></button>
+            <div class="accordion-content">{{ product.composition|linebreaksbr }}</div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if product.note %}<p class="note">{{ product.note }}</p>{% endif %}
+    </article>
+  </div>
+</section>
+{% endblock %}
