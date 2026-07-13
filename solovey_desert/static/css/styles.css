@@ -1051,6 +1051,43 @@ h1 {
   border-color: var(--dark);
 }
 
+.quantity-select {
+  margin-top: 24px;
+}
+
+.quantity-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--bg-2);
+}
+
+.quantity-controls button {
+  border: 0;
+  background: white;
+  color: var(--ink);
+  border-radius: 999px;
+  min-width: 42px;
+  height: 42px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, .04);
+}
+
+.quantity-controls button:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+
+.quantity-controls strong {
+  min-width: 28px;
+  text-align: center;
+  font-size: 18px;
+}
+
 .price-box {
   display: flex;
   justify-content: space-between;

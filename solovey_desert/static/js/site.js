@@ -106,6 +106,34 @@ function initHeroSlider() {
   }, 5000);
 }
 
+function initQuantityControls(controls, options = {}) {
+  if (!controls) return;
+
+  const minus = controls.querySelector('[data-quantity-minus]');
+  const plus = controls.querySelector('[data-quantity-plus]');
+  const valueNode = controls.querySelector('[data-quantity-value]');
+  const target = options.target;
+  const min = options.min ?? 1;
+  const max = options.max ?? 99;
+
+  function getQuantity() {
+    return Number(valueNode?.textContent || min);
+  }
+
+  function setQuantity(nextQuantity) {
+    const quantity = Math.min(max, Math.max(min, nextQuantity));
+    if (valueNode) valueNode.textContent = String(quantity);
+    if (target) target.dataset.quantity = String(quantity);
+    if (minus) minus.disabled = quantity <= min;
+    if (plus) plus.disabled = quantity >= max;
+    return quantity;
+  }
+
+  minus?.addEventListener('click', () => setQuantity(getQuantity() - 1));
+  plus?.addEventListener('click', () => setQuantity(getQuantity() + 1));
+  setQuantity(getQuantity());
+}
+
 function initProductDetail() {
   document.querySelectorAll('.product-thumbs button').forEach((button) => {
     button.addEventListener('click', () => {
@@ -140,23 +168,29 @@ function initProductDetail() {
       button.closest('.accordion-item')?.classList.toggle('is-open');
     });
   });
+
+  initQuantityControls(document.querySelector('[data-quantity-controls]'), {
+    target: orderButton,
+  });
 }
 
 async function addToCart(button) {
   const productId = button.dataset.productId;
   const weightOptionId = button.dataset.weightOptionId;
-  if (!productId || !weightOptionId) return;
+  const quantity = Number(button.dataset.quantity || 1);
+  if (!productId || !weightOptionId || quantity < 1) return;
 
   await apiFetch('/api/cart/items/', {
     method: 'POST',
     body: JSON.stringify({
       product_id: productId,
       weight_option_id: weightOptionId,
-      quantity: 1,
+      quantity,
     }),
   });
   await updateCartCount();
-  showCartToast('Товар добавлен в корзину');
+  const quantityLabel = quantity > 1 ? `${quantity} шт. добавлено в корзину` : 'Товар добавлен в корзину';
+  showCartToast(quantityLabel);
 
   const oldText = button.textContent;
   button.classList.add('is-added');
@@ -203,7 +237,7 @@ function renderCart(cart) {
         </a>
         <div>
           <h3><a href="${item.product.url}">${item.product.title}</a></h3>
-          <p>Вес: ${Number(item.weight_option.weight).toString()} кг</p>
+          <p>Вес: ${item.weight_option.weight_label || `${Number(item.weight_option.weight).toString()} кг`}</p>
           <div class="cart-item__controls">
             <button type="button" data-cart-minus="${item.id}">−</button>
             <strong>${item.quantity}</strong>

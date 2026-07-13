@@ -32,9 +32,11 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ProductWeightOptionSerializer(serializers.ModelSerializer):
+    weight_label = serializers.CharField(read_only=True)
+
     class Meta:
         model = ProductWeightOption
-        fields = ('id', 'weight', 'price', 'is_default', 'order')
+        fields = ('id', 'weight', 'weight_unit', 'weight_label', 'price', 'is_default', 'order')
 
 
 class ProductImageSerializer(serializers.ModelSerializer):

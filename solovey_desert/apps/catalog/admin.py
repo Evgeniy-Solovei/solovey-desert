@@ -20,6 +20,7 @@ class ProductImageInline(TabularInline):
 class ProductWeightOptionInline(TabularInline):
     model = ProductWeightOption
     extra = 1
+    fields = ('weight', 'weight_unit', 'price', 'is_default', 'order')
 
 
 @admin.register(Product)

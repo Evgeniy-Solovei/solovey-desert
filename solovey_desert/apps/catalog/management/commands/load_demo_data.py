@@ -142,6 +142,7 @@ class Command(BaseCommand):
             ProductWeightOption.objects.update_or_create(
                 product=product,
                 weight=weight,
+                weight_unit=ProductWeightOption.WeightUnit.KG,
                 defaults={'price': price, 'is_default': is_default, 'order': index},
             )
 

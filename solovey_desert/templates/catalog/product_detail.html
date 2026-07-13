@@ -44,10 +44,19 @@
         <h3>Выберите вес</h3>
         <div class="weight-options">
           {% for option in product.weight_options.all %}
-            <button class="{% if option.is_default or forloop.first %}is-active{% endif %}" type="button" data-weight-option-id="{{ option.id }}" data-price="{{ option.price|floatformat:"0" }}">{{ option.weight|floatformat:"-2" }} кг</button>
+            <button class="{% if option.is_default or forloop.first %}is-active{% endif %}" type="button" data-weight-option-id="{{ option.id }}" data-price="{{ option.price|floatformat:"0" }}">{{ option.weight_label }}</button>
           {% empty %}
             <button class="is-active" type="button" disabled>Вес не задан</button>
           {% endfor %}
+        </div>
+      </div>
+
+      <div class="quantity-select">
+        <h3>Количество</h3>
+        <div class="quantity-controls" data-quantity-controls>
+          <button type="button" data-quantity-minus aria-label="Уменьшить количество">−</button>
+          <strong data-quantity-value>1</strong>
+          <button type="button" data-quantity-plus aria-label="Увеличить количество">+</button>
         </div>
       </div>
 
@@ -56,7 +65,7 @@
           <small>Стоимость</small>
           <strong data-price>{{ product.price_from|floatformat:"0" }} BYN</strong>
         </div>
-        <button class="order-product-btn add-to-cart" type="button" data-product-id="{{ product.id }}" data-weight-option-id="">Добавить в корзину</button>
+        <button class="order-product-btn add-to-cart" type="button" data-product-id="{{ product.id }}" data-weight-option-id="" data-quantity="1">Добавить в корзину</button>
       </div>
 
       {% if product.taste_description %}

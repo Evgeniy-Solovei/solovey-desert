@@ -76,7 +76,7 @@ class CartItemUpdateSerializer(serializers.ModelSerializer):
 class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
-        fields = ('product_title', 'weight', 'quantity', 'price', 'line_total')
+        fields = ('product_title', 'weight', 'weight_unit', 'quantity', 'price', 'line_total')
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -122,6 +122,7 @@ class OrderCreateSerializer(serializers.ModelSerializer):
                     product=item.product,
                     product_title=item.product.title,
                     weight=item.weight_option.weight,
+                    weight_unit=item.weight_option.weight_unit,
                     quantity=item.quantity,
                     price=item.price,
                     line_total=item.line_total,
