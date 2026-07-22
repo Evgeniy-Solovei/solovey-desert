@@ -106,6 +106,31 @@ function initHeroSlider() {
   }, 5000);
 }
 
+function getSelectedUnitPrice() {
+  const activeWeight = document.querySelector('.weight-options button.is-active[data-price]');
+  if (activeWeight?.dataset.price) return Number(activeWeight.dataset.price) || 0;
+
+  const priceNode = document.querySelector('[data-price]');
+  return Number(priceNode?.dataset.unitPrice || 0) || 0;
+}
+
+function getSelectedQuantity() {
+  const valueNode = document.querySelector('[data-quantity-value]');
+  return Number(valueNode?.textContent || 1) || 1;
+}
+
+function updateProductTotalPrice() {
+  const priceNode = document.querySelector('[data-price]');
+  if (!priceNode) return;
+
+  const unitPrice = getSelectedUnitPrice();
+  const quantity = getSelectedQuantity();
+  const total = unitPrice * quantity;
+
+  priceNode.dataset.unitPrice = String(unitPrice);
+  priceNode.textContent = `${total} BYN`;
+}
+
 function syncProductQuantity(controls, nextQuantity) {
   if (!controls) return 1;
 
@@ -121,6 +146,7 @@ function syncProductQuantity(controls, nextQuantity) {
   if (orderButton) orderButton.dataset.quantity = String(quantity);
   if (minus) minus.disabled = quantity <= min;
   if (plus) plus.disabled = quantity >= max;
+  updateProductTotalPrice();
   return quantity;
 }
 
@@ -159,7 +185,6 @@ function initProductDetail() {
   });
 
   const orderButton = document.querySelector('.order-product-btn');
-  const price = document.querySelector('[data-price]');
   const activeWeight = document.querySelector('.weight-options button.is-active');
   if (orderButton && activeWeight?.dataset.weightOptionId) {
     orderButton.dataset.weightOptionId = activeWeight.dataset.weightOptionId;
@@ -169,8 +194,8 @@ function initProductDetail() {
     button.addEventListener('click', () => {
       document.querySelectorAll('.weight-options button').forEach((item) => item.classList.remove('is-active'));
       button.classList.add('is-active');
-      if (price && button.dataset.price) price.textContent = `${button.dataset.price} BYN`;
       if (orderButton) orderButton.dataset.weightOptionId = button.dataset.weightOptionId;
+      updateProductTotalPrice();
     });
   });
 
@@ -179,6 +204,8 @@ function initProductDetail() {
       button.closest('.accordion-item')?.classList.toggle('is-open');
     });
   });
+
+  updateProductTotalPrice();
 }
 
 async function addToCart(button) {
@@ -238,8 +265,9 @@ function renderCart(cart) {
   container.innerHTML = cart.items.map((item) => {
     const image = item.product?.main_image_url || '/static/assets/product-cake.jpg';
     const weightOption = item.weight_option || {};
+    const unitLabels = { kg: 'кг', g: 'г', pc: 'шт' };
     const weightLabel = weightOption.weight_label
-      || `${Number(weightOption.weight || 0).toString()} ${weightOption.weight_unit === 'g' ? 'г' : 'кг'}`;
+      || `${Number(weightOption.weight || 0).toString()} ${unitLabels[weightOption.weight_unit] || 'кг'}`;
     return `
       <article class="cart-item" data-cart-id="${item.id}">
         <a class="cart-item__image" href="${item.product?.url || '#'}" aria-label="Перейти к товару ${item.product?.title || ''}">
@@ -247,7 +275,7 @@ function renderCart(cart) {
         </a>
         <div>
           <h3><a href="${item.product?.url || '#'}">${item.product?.title || 'Товар'}</a></h3>
-          <p>Вес: ${weightLabel}</p>
+          <p>${weightLabel}</p>
           <div class="cart-item__controls">
             <button type="button" data-cart-minus="${item.id}" aria-label="Уменьшить количество">−</button>
             <strong data-cart-quantity>${item.quantity}</strong>

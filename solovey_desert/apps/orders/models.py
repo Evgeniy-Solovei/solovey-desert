@@ -101,7 +101,7 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, verbose_name='Заказ', related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, verbose_name='Товар', null=True, blank=True, on_delete=models.SET_NULL)
     product_title = models.CharField('Название товара', max_length=180)
-    weight = models.DecimalField('Вес', max_digits=7, decimal_places=2)
+    weight = models.DecimalField('Значение', max_digits=7, decimal_places=2)
     weight_unit = models.CharField(
         'Единица',
         max_length=2,

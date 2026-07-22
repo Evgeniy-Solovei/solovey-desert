@@ -56,3 +56,14 @@ class WeightOptionTests(TestCase):
             price=15,
         )
         self.assertEqual(option.weight_label, '120 г')
+
+    def test_weight_label_for_pieces(self):
+        category = Category.objects.create(title='Наборы')
+        product = Product.objects.create(category=category, title='Набор конфет')
+        option = ProductWeightOption.objects.create(
+            product=product,
+            weight='6',
+            weight_unit=ProductWeightOption.WeightUnit.PCS,
+            price=45,
+        )
+        self.assertEqual(option.weight_label, '6 шт')

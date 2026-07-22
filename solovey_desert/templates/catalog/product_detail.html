@@ -41,7 +41,7 @@
       <p class="product-lead">{{ product.description|default:product.short_description }}</p>
 
       <div class="weight-select">
-        <h3>Выберите вес</h3>
+        <h3>Выберите вариант</h3>
         <div class="weight-options">
           {% for option in product.weight_options.all %}
             <button class="{% if option.is_default or forloop.first %}is-active{% endif %}" type="button" data-weight-option-id="{{ option.id }}" data-price="{{ option.price|floatformat:"0" }}">{{ option.weight_label }}</button>
@@ -54,7 +54,13 @@
       <div class="price-box">
         <div>
           <small>Стоимость</small>
-          <strong data-price>{{ product.price_from|floatformat:"0" }} BYN</strong>
+          {% with active_option=product.default_weight_option %}
+            {% if active_option %}
+              <strong data-price data-unit-price="{{ active_option.price|floatformat:"0" }}">{{ active_option.price|floatformat:"0" }} BYN</strong>
+            {% else %}
+              <strong data-price data-unit-price="{{ product.price_from|floatformat:"0" }}">{{ product.price_from|floatformat:"0" }} BYN</strong>
+            {% endif %}
+          {% endwith %}
         </div>
         <div class="price-box__actions">
           <div class="quantity-controls" data-quantity-controls data-min="1" data-max="99">

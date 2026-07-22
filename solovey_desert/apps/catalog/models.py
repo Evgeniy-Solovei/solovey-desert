@@ -88,6 +88,7 @@ class ProductWeightOption(models.Model):
     class WeightUnit(models.TextChoices):
         KG = 'kg', 'кг'
         G = 'g', 'г'
+        PCS = 'pc', 'шт'
 
     product = models.ForeignKey(
         Product,
@@ -95,7 +96,7 @@ class ProductWeightOption(models.Model):
         related_name='weight_options',
         on_delete=models.CASCADE,
     )
-    weight = models.DecimalField('Вес', max_digits=7, decimal_places=2)
+    weight = models.DecimalField('Значение', max_digits=7, decimal_places=2)
     weight_unit = models.CharField(
         'Единица',
         max_length=2,
@@ -108,8 +109,8 @@ class ProductWeightOption(models.Model):
 
     class Meta:
         ordering = ['order', 'weight']
-        verbose_name = 'Вариант веса'
-        verbose_name_plural = 'Варианты веса'
+        verbose_name = 'Вариант'
+        verbose_name_plural = 'Варианты'
         indexes = [
             models.Index(fields=['product', 'order']),
         ]
