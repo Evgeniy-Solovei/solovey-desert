@@ -125,7 +125,7 @@ class ProductWeightOption(models.Model):
 
     @property
     def weight_label(self):
-        unit_label = dict(self.WeightUnit.choices)[self.weight_unit]
+        unit_label = dict(self.WeightUnit.choices).get(self.weight_unit, 'кг')
         if self.weight == self.weight.to_integral_value():
             value = int(self.weight)
         else:

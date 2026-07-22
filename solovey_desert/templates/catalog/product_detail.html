@@ -51,21 +51,19 @@
         </div>
       </div>
 
-      <div class="quantity-select">
-        <h3>Количество</h3>
-        <div class="quantity-controls" data-quantity-controls>
-          <button type="button" data-quantity-minus aria-label="Уменьшить количество">−</button>
-          <strong data-quantity-value>1</strong>
-          <button type="button" data-quantity-plus aria-label="Увеличить количество">+</button>
-        </div>
-      </div>
-
       <div class="price-box">
         <div>
           <small>Стоимость</small>
           <strong data-price>{{ product.price_from|floatformat:"0" }} BYN</strong>
         </div>
-        <button class="order-product-btn add-to-cart" type="button" data-product-id="{{ product.id }}" data-weight-option-id="" data-quantity="1">Добавить в корзину</button>
+        <div class="price-box__actions">
+          <div class="quantity-controls" data-quantity-controls data-min="1" data-max="99">
+            <button type="button" data-quantity-minus aria-label="Уменьшить количество">−</button>
+            <strong data-quantity-value>1</strong>
+            <button type="button" data-quantity-plus aria-label="Увеличить количество">+</button>
+          </div>
+          <button class="order-product-btn add-to-cart" type="button" data-product-id="{{ product.id }}" data-weight-option-id="" data-quantity="1">Добавить в корзину</button>
+        </div>
       </div>
 
       {% if product.taste_description %}

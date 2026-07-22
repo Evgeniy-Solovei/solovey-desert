@@ -106,32 +106,43 @@ function initHeroSlider() {
   }, 5000);
 }
 
-function initQuantityControls(controls, options = {}) {
-  if (!controls) return;
+function syncProductQuantity(controls, nextQuantity) {
+  if (!controls) return 1;
 
+  const min = Number(controls.dataset.min || 1);
+  const max = Number(controls.dataset.max || 99);
+  const quantity = Math.min(max, Math.max(min, Number(nextQuantity) || min));
+  const valueNode = controls.querySelector('[data-quantity-value]');
   const minus = controls.querySelector('[data-quantity-minus]');
   const plus = controls.querySelector('[data-quantity-plus]');
-  const valueNode = controls.querySelector('[data-quantity-value]');
-  const target = options.target;
-  const min = options.min ?? 1;
-  const max = options.max ?? 99;
+  const orderButton = document.querySelector('.order-product-btn');
 
-  function getQuantity() {
-    return Number(valueNode?.textContent || min);
-  }
+  if (valueNode) valueNode.textContent = String(quantity);
+  if (orderButton) orderButton.dataset.quantity = String(quantity);
+  if (minus) minus.disabled = quantity <= min;
+  if (plus) plus.disabled = quantity >= max;
+  return quantity;
+}
 
-  function setQuantity(nextQuantity) {
-    const quantity = Math.min(max, Math.max(min, nextQuantity));
-    if (valueNode) valueNode.textContent = String(quantity);
-    if (target) target.dataset.quantity = String(quantity);
-    if (minus) minus.disabled = quantity <= min;
-    if (plus) plus.disabled = quantity >= max;
-    return quantity;
-  }
+function initQuantityControls() {
+  document.querySelectorAll('[data-quantity-controls]').forEach((controls) => {
+    syncProductQuantity(controls, controls.querySelector('[data-quantity-value]')?.textContent || 1);
+  });
 
-  minus?.addEventListener('click', () => setQuantity(getQuantity() - 1));
-  plus?.addEventListener('click', () => setQuantity(getQuantity() + 1));
-  setQuantity(getQuantity());
+  document.addEventListener('click', (event) => {
+    const plus = event.target.closest('[data-quantity-plus]');
+    const minus = event.target.closest('[data-quantity-minus]');
+    if (!plus && !minus) return;
+
+    const controls = (plus || minus).closest('[data-quantity-controls]');
+    if (!controls) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const current = Number(controls.querySelector('[data-quantity-value]')?.textContent || 1);
+    syncProductQuantity(controls, plus ? current + 1 : current - 1);
+  });
 }
 
 function initProductDetail() {
@@ -167,10 +178,6 @@ function initProductDetail() {
     button.addEventListener('click', () => {
       button.closest('.accordion-item')?.classList.toggle('is-open');
     });
-  });
-
-  initQuantityControls(document.querySelector('[data-quantity-controls]'), {
-    target: orderButton,
   });
 }
 
@@ -229,19 +236,22 @@ function renderCart(cart) {
   }
 
   container.innerHTML = cart.items.map((item) => {
-    const image = item.product.main_image_url || '/static/assets/product-cake.jpg';
+    const image = item.product?.main_image_url || '/static/assets/product-cake.jpg';
+    const weightOption = item.weight_option || {};
+    const weightLabel = weightOption.weight_label
+      || `${Number(weightOption.weight || 0).toString()} ${weightOption.weight_unit === 'g' ? 'г' : 'кг'}`;
     return `
       <article class="cart-item" data-cart-id="${item.id}">
-        <a class="cart-item__image" href="${item.product.url}" aria-label="Перейти к товару ${item.product.title}">
-          <img src="${image}" alt="${item.product.title}">
+        <a class="cart-item__image" href="${item.product?.url || '#'}" aria-label="Перейти к товару ${item.product?.title || ''}">
+          <img src="${image}" alt="${item.product?.title || ''}">
         </a>
         <div>
-          <h3><a href="${item.product.url}">${item.product.title}</a></h3>
-          <p>Вес: ${item.weight_option.weight_label || `${Number(item.weight_option.weight).toString()} кг`}</p>
+          <h3><a href="${item.product?.url || '#'}">${item.product?.title || 'Товар'}</a></h3>
+          <p>Вес: ${weightLabel}</p>
           <div class="cart-item__controls">
-            <button type="button" data-cart-minus="${item.id}">−</button>
-            <strong>${item.quantity}</strong>
-            <button type="button" data-cart-plus="${item.id}">+</button>
+            <button type="button" data-cart-minus="${item.id}" aria-label="Уменьшить количество">−</button>
+            <strong data-cart-quantity>${item.quantity}</strong>
+            <button type="button" data-cart-plus="${item.id}" aria-label="Увеличить количество">+</button>
             <button class="cart-remove" type="button" data-cart-remove="${item.id}">Удалить</button>
           </div>
         </div>
@@ -266,21 +276,28 @@ function initCartPage() {
     const remove = event.target.closest('[data-cart-remove]');
     if (!plus && !minus && !remove) return;
 
+    event.preventDefault();
+    event.stopPropagation();
+
     const id = plus?.dataset.cartPlus || minus?.dataset.cartMinus || remove?.dataset.cartRemove;
     const item = document.querySelector(`[data-cart-id="${id}"]`);
-    const quantity = Number(item?.querySelector('.cart-item__controls strong')?.textContent || 1);
+    const quantityNode = item?.querySelector('[data-cart-quantity]');
+    const quantity = Number(quantityNode?.textContent || 1);
+    const nextQuantity = plus ? quantity + 1 : quantity - 1;
 
     try {
-      if (remove || quantity <= 1 && minus) {
+      if (remove || (minus && quantity <= 1)) {
         await apiFetch(`/api/cart/items/${id}/`, { method: 'DELETE' });
       } else {
+        if (quantityNode) quantityNode.textContent = String(nextQuantity);
         await apiFetch(`/api/cart/items/${id}/`, {
           method: 'PATCH',
-          body: JSON.stringify({ quantity: plus ? quantity + 1 : quantity - 1 }),
+          body: JSON.stringify({ quantity: nextQuantity }),
         });
       }
       await refreshCartPage();
     } catch {
+      await refreshCartPage();
       showCartToast('Не удалось обновить корзину');
     }
   });
@@ -308,6 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initCarousels();
   initHeroSlider();
   initProductDetail();
+  initQuantityControls();
   initAddToCart();
   initCartPage();
   updateCartCount();
